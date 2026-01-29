@@ -30,6 +30,9 @@ class StrandAgent {
         console.log('🔍 Analysis:');
         console.log(`   Visualization: ${vizType}`);
         console.log(`   Status Filter: ${config.statusFilter}`);
+        if (config.yoyFilter) console.log(`   YoY Filter: ${config.yoyFilter}`);
+        if (config.momFilter) console.log(`   MoM Filter: ${config.momFilter}`);
+        if (config.limit) console.log(`   Limit: ${config.limit}`);
         console.log(`   Metrics: ${config.metrics.join(', ')}\n`);
 
         try {
@@ -69,10 +72,35 @@ class StrandAgent {
         const lowerQuery = query.toLowerCase();
         
         let statusFilter = 'all';
+        let yoyFilter = null;
+        let momFilter = null;
+        let limit = null;
+        
         if (lowerQuery.includes('red') && !lowerQuery.includes('green')) {
             statusFilter = 'red';
         } else if (lowerQuery.includes('green') && !lowerQuery.includes('red')) {
             statusFilter = 'green';
+        }
+        
+        if (lowerQuery.includes('positive yoy') || lowerQuery.includes('positive year')) {
+            yoyFilter = 'positive';
+        } else if (lowerQuery.includes('negative yoy') || lowerQuery.includes('negative year')) {
+            yoyFilter = 'negative';
+        }
+        
+        if (lowerQuery.includes('positive mom') || lowerQuery.includes('positive month')) {
+            momFilter = 'positive';
+        } else if (lowerQuery.includes('negative mom') || lowerQuery.includes('negative month')) {
+            momFilter = 'negative';
+        }
+        
+        const topMatch = lowerQuery.match(/top\s+(\d+)/);
+        if (topMatch) {
+            limit = parseInt(topMatch[1]);
+        }
+        const numberMatch = lowerQuery.match(/\b(\d+)\s+(manufacturer|compan)/);
+        if (numberMatch && !limit) {
+            limit = parseInt(numberMatch[1]);
         }
 
         const metrics = [];
@@ -83,12 +111,11 @@ class StrandAgent {
             metrics.push('MoM CTC', 'YoY CTC');
         }
         
-        // Default: show all metrics
         if (metrics.length === 0) {
             metrics.push('YoY', 'MoM', 'Profit', 'MoM CTC', 'YoY CTC');
         }
 
-        return { statusFilter, metrics };
+        return { statusFilter, yoyFilter, momFilter, limit, metrics };
     }
 
     async saveFile(relativePath, content) {
@@ -309,13 +336,16 @@ const ManufacturerTable = () => {
     const navigate = useNavigate();
 
     const filteredData = useMemo(() => {
-        const filtered = manufacturersData.filter(item => {
+        let filtered = manufacturersData.filter(item => {
             const searchLower = search.toLowerCase();
             const matchesSearch = item.name.toLowerCase().includes(searchLower) || 
                                 item.status.toLowerCase().includes(searchLower);
             const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-            return matchesSearch && matchesStatus;
+            ${config.yoyFilter ? `const matchesYoy = item.yoy ${config.yoyFilter === 'positive' ? '>= 0' : '< 0'};` : 'const matchesYoy = true;'}
+            ${config.momFilter ? `const matchesMom = item.mom ${config.momFilter === 'positive' ? '>= 0' : '< 0'};` : 'const matchesMom = true;'}
+            return matchesSearch && matchesStatus && matchesYoy && matchesMom;
         });
+        ${config.limit ? `filtered = filtered.slice(0, ${config.limit});` : ''}
         setPage(0);
         return filtered;
     }, [search, statusFilter]);
