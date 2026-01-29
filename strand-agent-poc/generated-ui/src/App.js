@@ -22,7 +22,7 @@ function App() {
                         <Container maxWidth="xl" sx={{ py: 4 }}>
                             <Box sx={{ mb: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
                                 <Typography variant="body2" color="text.secondary">
-                                    🤖 Generated from query: "show me all manufacturers"
+                                    🤖 Generated from query: "show me a table of manufacturers"
                                 </Typography>
                             </Box>
                             <Visualization />

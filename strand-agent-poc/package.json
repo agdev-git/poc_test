@@ -6,9 +6,13 @@
   "scripts": {
     "start": "node run.js",
     "setup": "npm install && cd generated-ui && npm install",
-    "ui": "cd generated-ui && npm start"
+    "ui": "cd generated-ui && npm start",
+    "graph-server": "node agent/graphServer.js",
+    "dev": "concurrently \"npm run graph-server\" \"npm run ui\""
   },
   "dependencies": {
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "cors": "^2.8.6",
+    "express": "^4.22.1"
   }
 }
