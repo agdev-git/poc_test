@@ -36,7 +36,7 @@ const ManufacturerTable = () => {
     const [page, setPage] = useState(0);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [showDeepDive, setShowDeepDive] = useState(false);
     const navigate = useNavigate();
 
     const filteredData = useMemo(() => {
@@ -45,11 +45,11 @@ const ManufacturerTable = () => {
             const matchesSearch = item.name.toLowerCase().includes(searchLower) || 
                                 item.status.toLowerCase().includes(searchLower);
             const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-            const matchesYoy = item.yoy >= 0;
+            const matchesYoy = true;
             const matchesMom = true;
             return matchesSearch && matchesStatus && matchesYoy && matchesMom;
         });
-        filtered = filtered.slice(0, 5);
+        
         setPage(0);
         return filtered;
     }, [search, statusFilter]);
@@ -71,18 +71,10 @@ const ManufacturerTable = () => {
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
                 <Button 
                     variant="outlined" 
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                    onClick={() => setShowDeepDive(!showDeepDive)}
                 >
-                    Deep Dive
+                    {showDeepDive ? 'Hide Deep Dive' : 'Deep Dive'}
                 </Button>
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={() => setAnchorEl(null)}
-                >
-                    <MenuItem onClick={() => { navigate('/table1'); setAnchorEl(null); }}>Link 1</MenuItem>
-                    <MenuItem onClick={() => { navigate('/table2'); setAnchorEl(null); }}>Link 2</MenuItem>
-                </Menu>
                 <TextField
                     placeholder="Search manufacturer..."
                     value={search}
@@ -118,6 +110,7 @@ const ManufacturerTable = () => {
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>#</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Manufacturer</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Status</TableCell>
+                            {showDeepDive && <TableCell sx={{ color: 'white', fontWeight: 600 }}>Deep Dive</TableCell>}
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>YoY</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>MoM</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Profit</TableCell>
@@ -145,6 +138,14 @@ const ManufacturerTable = () => {
                                             size="small"
                                         />
                                     </TableCell>
+                                    {showDeepDive && (
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Button size="small" variant="text" onClick={() => navigate('/table1')}>Link 1</Button>
+                                                <Button size="small" variant="text" onClick={() => navigate('/table2')}>Link 2</Button>
+                                            </Box>
+                                        </TableCell>
+                                    )}
                                     <TableCell><MetricCell value={row.yoy} /></TableCell>
                                     <TableCell><MetricCell value={row.mom} /></TableCell>
                                     <TableCell sx={{ fontWeight: 500 }}>{formatCurrency(row.profit)}</TableCell>
