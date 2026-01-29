@@ -2,14 +2,14 @@ import React, { useState, useMemo } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, TablePagination, Chip, Box, Typography, TextField,
-    FormControl, InputLabel, Select, MenuItem, InputAdornment
+    FormControl, InputLabel, Select, MenuItem, InputAdornment, Button, Menu
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import { useNavigate } from 'react-router-dom';
 import { manufacturersData } from '../data/manufacturers';
 
-// Metric display component with trend icon
 const MetricCell = ({ value }) => {
     const isPositive = value >= 0;
     return (
@@ -36,6 +36,8 @@ const ManufacturerTable = () => {
     const [page, setPage] = useState(0);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [showDeepDive, setShowDeepDive] = useState(false);
+    const navigate = useNavigate();
 
     const filteredData = useMemo(() => {
         const filtered = manufacturersData.filter(item => {
@@ -63,8 +65,13 @@ const ManufacturerTable = () => {
                 Manufacturer Performance Dashboard
             </Typography>
 
-            {/* Filters */}
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                <Button 
+                    variant="outlined" 
+                    onClick={() => setShowDeepDive(!showDeepDive)}
+                >
+                    {showDeepDive ? 'Hide Deep Dive' : 'Deep Dive'}
+                </Button>
                 <TextField
                     placeholder="Search manufacturer..."
                     value={search}
@@ -93,7 +100,6 @@ const ManufacturerTable = () => {
                 </FormControl>
             </Box>
 
-            {/* Table */}
             <TableContainer component={Paper} elevation={3}>
                 <Table>
                     <TableHead>
@@ -101,6 +107,7 @@ const ManufacturerTable = () => {
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>#</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Manufacturer</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Status</TableCell>
+                            {showDeepDive && <TableCell sx={{ color: 'white', fontWeight: 600 }}>Deep Dive</TableCell>}
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>YoY</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>MoM</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 600 }}>Profit</TableCell>
@@ -128,6 +135,14 @@ const ManufacturerTable = () => {
                                             size="small"
                                         />
                                     </TableCell>
+                                    {showDeepDive && (
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Button size="small" variant="text" onClick={() => navigate('/table1')}>Link 1</Button>
+                                                <Button size="small" variant="text" onClick={() => navigate('/table2')}>Link 2</Button>
+                                            </Box>
+                                        </TableCell>
+                                    )}
                                     <TableCell><MetricCell value={row.yoy} /></TableCell>
                                     <TableCell><MetricCell value={row.mom} /></TableCell>
                                     <TableCell sx={{ fontWeight: 500 }}>{formatCurrency(row.profit)}</TableCell>
@@ -147,7 +162,6 @@ const ManufacturerTable = () => {
                 />
             </TableContainer>
 
-            {/* Summary Cards */}
             <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                 <Paper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
                     <Typography variant="h5" color="error">

@@ -271,14 +271,14 @@ export default Visualization;`;
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, TablePagination, Chip, Box, Typography, TextField,
-    FormControl, InputLabel, Select, MenuItem, InputAdornment
+    FormControl, InputLabel, Select, MenuItem, InputAdornment, Button, Menu
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import { useNavigate } from 'react-router-dom';
 import { manufacturersData } from '../data/manufacturers';
 
-// Metric display component with trend icon
 const MetricCell = ({ value }) => {
     const isPositive = value >= 0;
     return (
@@ -305,6 +305,8 @@ const ManufacturerTable = () => {
     const [page, setPage] = useState(0);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('${config.statusFilter}');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const navigate = useNavigate();
 
     const filteredData = useMemo(() => {
         const filtered = manufacturersData.filter(item => {
@@ -332,8 +334,21 @@ const ManufacturerTable = () => {
                 Manufacturer Performance Dashboard
             </Typography>
 
-            {/* Filters */}
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                <Button 
+                    variant="outlined" 
+                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                >
+                    Deep Dive
+                </Button>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={() => setAnchorEl(null)}
+                >
+                    <MenuItem onClick={() => { navigate('/table1'); setAnchorEl(null); }}>Link 1</MenuItem>
+                    <MenuItem onClick={() => { navigate('/table2'); setAnchorEl(null); }}>Link 2</MenuItem>
+                </Menu>
                 <TextField
                     placeholder="Search manufacturer..."
                     value={search}
@@ -362,7 +377,6 @@ const ManufacturerTable = () => {
                 </FormControl>
             </Box>
 
-            {/* Table */}
             <TableContainer component={Paper} elevation={3}>
                 <Table>
                     <TableHead>
@@ -416,7 +430,6 @@ const ManufacturerTable = () => {
                 />
             </TableContainer>
 
-            {/* Summary Cards */}
             <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                 <Paper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
                     <Typography variant="h5" color="error">
@@ -447,10 +460,12 @@ export default ManufacturerTable;
 
     generateAppCode(userQuery) {
         return `import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline, Container, Typography, Box } from '@mui/material';
 import Visualization from './components/Visualization';
+import Table1 from './components/Table1';
+import Table2 from './components/Table2';
 
-// Theme configuration
 const theme = createTheme({
     palette: {
         primary: { main: '#1976d2' },
@@ -462,15 +477,22 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Container maxWidth="xl" sx={{ py: 4 }}>
-                {/* User Query Display */}
-                <Box sx={{ mb: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                        🤖 Generated from query: "${userQuery}"
-                    </Typography>
-                </Box>
-                <Visualization />
-            </Container>
+            <Router>
+                <Routes>
+                    <Route path="/" element={
+                        <Container maxWidth="xl" sx={{ py: 4 }}>
+                            <Box sx={{ mb: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    🤖 Generated from query: "${userQuery}"
+                                </Typography>
+                            </Box>
+                            <Visualization />
+                        </Container>
+                    } />
+                    <Route path="/table1" element={<Table1 />} />
+                    <Route path="/table2" element={<Table2 />} />
+                </Routes>
+            </Router>
         </ThemeProvider>
     );
 }

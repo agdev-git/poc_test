@@ -1,8 +1,10 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline, Container, Typography, Box } from '@mui/material';
 import Visualization from './components/Visualization';
+import Table1 from './components/Table1';
+import Table2 from './components/Table2';
 
-// Theme configuration
 const theme = createTheme({
     palette: {
         primary: { main: '#1976d2' },
@@ -14,15 +16,22 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Container maxWidth="xl" sx={{ py: 4 }}>
-                {/* User Query Display */}
-                <Box sx={{ mb: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                        🤖 Generated from query: "show me the  graph  for top 5 companies with yoy "
-                    </Typography>
-                </Box>
-                <Visualization />
-            </Container>
+            <Router>
+                <Routes>
+                    <Route path="/" element={
+                        <Container maxWidth="xl" sx={{ py: 4 }}>
+                            <Box sx={{ mb: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    🤖 Generated from query: "show me 10 manufacturers with positive yoy "
+                                </Typography>
+                            </Box>
+                            <Visualization />
+                        </Container>
+                    } />
+                    <Route path="/table1" element={<Table1 />} />
+                    <Route path="/table2" element={<Table2 />} />
+                </Routes>
+            </Router>
         </ThemeProvider>
     );
 }
